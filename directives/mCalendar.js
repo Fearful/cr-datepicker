@@ -9,10 +9,10 @@ angular.module("calendar", []).directive('miniCalendar', function($parse) {
         controller: function($scope) {
             $scope.currentDate = new Date();
             $scope.prev = function() {
-                $scope.mCalDate = new Date($scope.mCalDate.getFullYear(), $scope.mCalDate.getMonth() - 1, $scope.mCalDate.getDay());
+                $scope.mCalDate = new Date($scope.mCalDate.getFullYear(), $scope.mCalDate.getMonth() - 1, 2);
             };
             $scope.next = function() {
-                $scope.mCalDate = new Date($scope.mCalDate.getFullYear(), $scope.mCalDate.getMonth() + 1, $scope.mCalDate.getDay());
+                $scope.mCalDate = new Date($scope.mCalDate.getFullYear(), $scope.mCalDate.getMonth() + 1, 2);
             };
             $scope.selecting = false;
             $scope.selectDate = function() {
@@ -47,7 +47,17 @@ angular.module("calendar", []).directive('miniCalendar', function($parse) {
             var modelAccessor = $parse(attrs.mCalDate);
             return function(scope, element, attrs, controller) {
                 var calculateCalendar = function() {
-                    scope.currentDate = Math.abs(scope.mCalDate.getDate() - 1) + '/' + Math.abs(scope.mCalDate.getMonth() + 1) + '/' + scope.mCalDate.getFullYear();
+                    var filteredDay;
+                    var filteredMonth;
+                    if (scope.mCalDate.getDate() == 1) {
+                        filteredDay = new Date(scope.mCalDate.getFullYear(), scope.mCalDate.getMonth(), 0).getDate();
+                        filteredMonth = scope.mCalDate.getMonth();
+                        scope.mCalDate.setMonth(Math.abs(scope.mCalDate.getMonth() - 1));
+                    } else {
+                        filteredDay = Math.abs(scope.mCalDate.getDate() - 1);
+                        filteredMonth = Math.abs(scope.mCalDate.getMonth() + 1);
+                    }
+                    scope.currentDate = filteredDay + '/' + filteredMonth + '/' + scope.mCalDate.getFullYear();
                     if (!scope.weeks.length > 0 || scope.weeks[0].days[6].date.getMonth() != scope.mCalDate.getMonth()) {
                         var firstDayOfMonth = new Date(scope.mCalDate.getFullYear(), scope.mCalDate.getMonth(), 1).toDateString().split(' ');
                         var totalDays = new Date(scope.mCalDate.getFullYear(), scope.mCalDate.getMonth() + 1, 0).getDate();
