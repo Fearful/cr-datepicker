@@ -1,8 +1,8 @@
 function exampleController($scope) {
     $scope.newDate = new Date(2013, 4, 25);
 }
-var datePicker = angular.module("example", [])
-var datePickerTemplate = [
+var datePicker = angular.module("example", []) // Example module
+var datePickerTemplate = [ // Template for the date picker, no CSS, pure HTML. The date-picker tag will be replaced by this
     '<div class="datePicker">',
     '<label ng-click="selectDate()">',
     '<input type="text" ng-model="currentDate" disabled>',
@@ -18,7 +18,7 @@ var datePickerTemplate = [
     '</div>',
     '<table>',
     '<thead><tr>',
-    '<th ng-repeat="day in days"><span ng-bind="day.day"></span></th>',
+    '<th ng-repeat="day in days"><span ng-bind="day"></span></th>',
     '</tr></thead>',
     '<tbody><tr ng-repeat="week in weeks">',
     '<td ng-repeat="d in week.days"><a ng-bind="d.day" ng-click="selectDay(d)">1</a></td>',
@@ -33,7 +33,7 @@ datePicker.directive('datePicker', function($parse) {
         templateUrl: "datePicker.tmpl",
         transclude: true,
         controller: function($scope) {
-            $scope.currentDate = new Date();
+            $scope.currentDate = new Date(2000, 0, 2);
             $scope.prev = function() {
                 $scope.dateValue = new Date($scope.dateValue.getFullYear(), $scope.dateValue.getMonth() - 1, 2);
             };
@@ -49,21 +49,7 @@ datePicker.directive('datePicker', function($parse) {
             };
             $scope.currentMonth = '';
             $scope.currentYear = '';
-            $scope.days = [{
-                day: "Sun"
-            }, {
-                day: "Mon"
-            }, {
-                day: "Tue"
-            }, {
-                day: "Wed"
-            }, {
-                day: "Thu"
-            }, {
-                day: "Fri"
-            }, {
-                day: "Sat"
-            }];
+            $scope.days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
             $scope.weeks = [];
         },
         scope: {
@@ -73,23 +59,26 @@ datePicker.directive('datePicker', function($parse) {
             var modelAccessor = $parse(attrs.dateValue);
             return function(scope, element, attrs, controller) {
                 var calculateCalendar = function() {
-                    var filteredDay;
-                    var filteredMonth;
-                    if (scope.dateValue.getDate() == 1) {
-                        filteredDay = new Date(scope.dateValue.getFullYear(), scope.dateValue.getMonth(), 0).getDate();
-                        filteredMonth = scope.dateValue.getMonth();
-                        scope.dateValue.setMonth(Math.abs(scope.dateValue.getMonth() - 1));
+                    var filteredDay,
+                        filteredMonth,
+                        jsDay = scope.dateValue.getDate(),
+                        jsMonth = scope.dateValue.getMonth(),
+                        jsYear = scope.dateValue.getFullYear();
+                    if (jsDay == 1) {
+                        filteredDay = new Date(jsYear, jsMonth, 0).getDate();
+                        filteredMonth = jsMonth;
+                        scope.dateValue.setMonth(Math.abs(jsMonth - 1));
                     } else {
-                        filteredDay = Math.abs(scope.dateValue.getDate() - 1);
-                        filteredMonth = Math.abs(scope.dateValue.getMonth() + 1);
+                        filteredDay = Math.abs(jsDay - 1);
+                        filteredMonth = Math.abs(jsMonth + 1);
                     }
-                    scope.currentDate = filteredDay + '/' + filteredMonth + '/' + scope.dateValue.getFullYear();
-                    if (!scope.weeks.length > 0 || scope.weeks[0].days[6].date.getMonth() != scope.dateValue.getMonth()) {
-                        var firstDayOfMonth = new Date(scope.dateValue.getFullYear(), scope.dateValue.getMonth(), 1).toDateString().split(' ');
-                        var totalDays = new Date(scope.dateValue.getFullYear(), scope.dateValue.getMonth() + 1, 0).getDate();
+                    scope.currentDate = filteredDay + '/' + filteredMonth + '/' + jsYear;
+                    if (!scope.weeks.length > 0 || scope.weeks[0].days[6].date.getMonth() != jsMonth) {
+                        var firstDayOfMonth = new Date(jsYear, jsMonth, 1).toDateString().split(' ');
+                        var totalDays = new Date(jsYear, jsMonth + 1, 0).getDate();
                         var firstDayIndex;
                         for (var i in scope.days) {
-                            if (scope.days[i].day == firstDayOfMonth[0]) {
+                            if (scope.days[i] == firstDayOfMonth[0]) {
                                 firstDayIndex = i;
                             }
                         }
@@ -98,9 +87,9 @@ datePicker.directive('datePicker', function($parse) {
                         for (i = 0; i < totalDays + 6; i++) {
                             if (i >= firstDayIndex && (h + 1) <= totalDays) {
                                 allDays.push({
-                                    dayName: scope.days[new Date(scope.dateValue.getFullYear(), scope.dateValue.getMonth(), h + 1).getDay()].day,
+                                    dayName: scope.days[new Date(jsYear, jsMonth, h + 1).getDay()],
                                     day: ++h,
-                                    date: new Date(scope.dateValue.getFullYear(), scope.dateValue.getMonth(), h + 1)
+                                    date: new Date(jsYear, jsMonth, h + 1)
                                 });
                             } else {
                                 allDays.push({});
@@ -115,7 +104,7 @@ datePicker.directive('datePicker', function($parse) {
                             });
                         }
                         scope.weeks = calendar;
-                        scope.currentYear = scope.dateValue.getFullYear();
+                        scope.currentYear = jsYear;
                         scope.currentMonth = scope.dateValue.toDateString().split(' ')[1];
                     }
                 }
@@ -131,6 +120,6 @@ datePicker.directive('datePicker', function($parse) {
 datePicker.run([
     '$templateCache',
     function ($templateCache) {
-      $templateCache.put('datePicker.tmpl', datePickerTemplate);
+      $templateCache.put('datePicker.tmpl', datePickerTemplate); // This saves the html template we declared before in the $templateCache
     }
   ]);
