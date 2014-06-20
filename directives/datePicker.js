@@ -1,5 +1,5 @@
 function exampleController($scope) {
-    $scope.newDate = new Date(2013, 4, 25);
+    $scope.newDate = new Date(2020, 4, 25);
 }
 var datePicker = angular.module("example", []) // Example module
 var datePickerTemplate = [ // Template for the date picker, no CSS, pure HTML. The date-picker tag will be replaced by this
@@ -85,23 +85,21 @@ datePicker.directive('datePicker', function($parse) {
                         }
                         var allDays = [];
                         var h = 0;
-                        for (i = 0; i < totalDays[jsMonth] + 6; i++) {
+                        for (i = 0; i < totalDays[jsMonth] + 6; i++) { // How many times it has to iterate to generate the five weeks componing the calendar
                             if (i >= firstDayIndex && (h + 1) <= totalDays[jsMonth]) {
                                 allDays.push({
-                                    dayName: scope.days[new Date(jsYear, jsMonth, h + 1).getDay()],
                                     day: ++h,
                                     date: new Date(jsYear, jsMonth, h + 1)
                                 });
                             } else {
-                                allDays.push({});
+                                allDays.push({}); // And empty object is pushed when the day is from another month
                             }
                         }
-                        var calendar = [];
-                        var chunk = 7;
-                        for (i = 0, allDays.length; i < allDays.length; i += chunk) {
+                        var calendar = []; // weeks container
+                        var chunk = 7; // Size of the chunk (days of the week)
+                        for (i = 0, allDays.length; i < allDays.length; i += chunk) { // We populate the calendar array with week objects that contain the chunk of days we wanted
                             calendar.push({
-                                week: calendar.length,
-                                days: allDays.slice(i, i + chunk)
+                                days: allDays.slice(i, i + chunk) // It slices the chunk of days based on the current index
                             });
                         };
                         scope.weeks = calendar;
@@ -109,7 +107,6 @@ datePicker.directive('datePicker', function($parse) {
                         scope.currentMonth = scope.dateValue.toDateString().split(' ')[1];
                     }
                 }
-                calculateCalendar();
                 scope.$watch('dateValue', function(val) {
                     calculateCalendar();
                 });
