@@ -46,6 +46,7 @@ datePicker.directive('datePicker', function($parse) {
             };
             $scope.selectDay = function(day) {
                 $scope.dateValue = day.date;
+                $scope.selecting = !$scope.selecting;
             };
             $scope.currentMonth = '';
             $scope.currentYear = '';
@@ -75,7 +76,7 @@ datePicker.directive('datePicker', function($parse) {
                     scope.currentDate = filteredDay + '/' + filteredMonth + '/' + jsYear;
                     if (!scope.weeks.length > 0 || scope.weeks[0].days[6].date.getMonth() != jsMonth) {
                         var firstDayOfMonth = new Date(jsYear, jsMonth, 1).toDateString().split(' ');
-                        var totalDays = new Date(jsYear, jsMonth + 1, 0).getDate();
+                        var totalDays = [31, (jsYear % 4 == 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; // Calculating the quantity of days in february by it's year
                         var firstDayIndex;
                         for (var i in scope.days) {
                             if (scope.days[i] == firstDayOfMonth[0]) {
@@ -84,8 +85,8 @@ datePicker.directive('datePicker', function($parse) {
                         }
                         var allDays = [];
                         var h = 0;
-                        for (i = 0; i < totalDays + 6; i++) {
-                            if (i >= firstDayIndex && (h + 1) <= totalDays) {
+                        for (i = 0; i < totalDays[jsMonth] + 6; i++) {
+                            if (i >= firstDayIndex && (h + 1) <= totalDays[jsMonth]) {
                                 allDays.push({
                                     dayName: scope.days[new Date(jsYear, jsMonth, h + 1).getDay()],
                                     day: ++h,
@@ -95,14 +96,14 @@ datePicker.directive('datePicker', function($parse) {
                                 allDays.push({});
                             }
                         }
-                        var calendar = []
+                        var calendar = [];
                         var chunk = 7;
                         for (i = 0, allDays.length; i < allDays.length; i += chunk) {
                             calendar.push({
                                 week: calendar.length,
                                 days: allDays.slice(i, i + chunk)
                             });
-                        }
+                        };
                         scope.weeks = calendar;
                         scope.currentYear = jsYear;
                         scope.currentMonth = scope.dateValue.toDateString().split(' ')[1];
