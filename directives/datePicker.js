@@ -1,5 +1,5 @@
 function exampleController($scope) {
-    $scope.newDate = new Date(2020, 4, 25);
+    $scope.newDate = new Date();
 }
 var datePicker = angular.module("example", []) // Example module
 var datePickerTemplate = [ // Template for the date picker, no CSS, pure HTML. The date-picker tag will be replaced by this
@@ -21,7 +21,7 @@ var datePickerTemplate = [ // Template for the date picker, no CSS, pure HTML. T
     '<th ng-repeat="day in days"><span ng-bind="day"></span></th>',
     '</tr></thead>',
     '<tbody><tr ng-repeat="week in weeks">',
-    '<td ng-repeat="d in week.days"><a ng-bind="d.day" ng-click="selectDay(d)">1</a></td>',
+    '<td ng-repeat="d in week.days"><a ng-bind="d.day" ng-click="selectDay(d)" ng-class="{active:d.selected}">1</a></td>',
     '</tr></tbody>',
     '</table>',
     '</div>',
@@ -35,10 +35,10 @@ datePicker.directive('datePicker', function($parse) {
         controller: function($scope) {
             $scope.currentDate = new Date(2000, 0, 2);
             $scope.prev = function() {
-                $scope.dateValue = new Date($scope.dateValue.getFullYear(), $scope.dateValue.getMonth() - 1, 2);
+                $scope.dateValue = new Date($scope.dateValue).setMonth(new Date($scope.dateValue).getMonth() - 1);
             };
             $scope.next = function() {
-                $scope.dateValue = new Date($scope.dateValue.getFullYear(), $scope.dateValue.getMonth() + 1, 2);
+                $scope.dateValue = new Date($scope.dateValue).setMonth(new Date($scope.dateValue).getMonth() + 1);
             };
             $scope.selecting = false;
             $scope.selectDate = function() {
@@ -60,23 +60,20 @@ datePicker.directive('datePicker', function($parse) {
             var modelAccessor = $parse(attrs.dateValue);
             return function(scope, element, attrs, controller) {
                 var calculateCalendar = function() {
-                    var filteredDay,
-                        filteredMonth,
-                        jsDay = scope.dateValue.getDate(),
-                        jsMonth = scope.dateValue.getMonth(),
-                        jsYear = scope.dateValue.getFullYear();
+                    var date = new Date(scope.dateValue);
+                        jsDay = date.getDate(),
+                        jsMonth = date.getMonth(),
+                        jsYear = date.getFullYear(),
+                        totalDays = [31, (jsYear % 4 == 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; // Calculating the quantity of days in february by it's year
                     if (jsDay == 1) {
-                        filteredDay = new Date(jsYear, jsMonth, 0).getDate();
-                        filteredMonth = jsMonth;
-                        scope.dateValue.setMonth(Math.abs(jsMonth - 1));
+                        jsMonth = jsMonth - 1;
+                        jsDay = totalDays[jsMonth];
                     } else {
-                        filteredDay = Math.abs(jsDay - 1);
-                        filteredMonth = Math.abs(jsMonth + 1);
+                        jsDay = jsDay - 1;
                     }
-                    scope.currentDate = filteredDay + '/' + filteredMonth + '/' + jsYear;
+                    scope.currentDate = jsDay + '/' + Math.abs(jsMonth + 1) + '/' + jsYear;
                     if (!scope.weeks.length > 0 || scope.weeks[0].days[6].date.getMonth() != jsMonth) {
                         var firstDayOfMonth = new Date(jsYear, jsMonth, 1).toDateString().split(' ');
-                        var totalDays = [31, (jsYear % 4 == 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; // Calculating the quantity of days in february by it's year
                         var firstDayIndex;
                         for (var i in scope.days) {
                             if (scope.days[i] == firstDayOfMonth[0]) {
@@ -89,7 +86,8 @@ datePicker.directive('datePicker', function($parse) {
                             if (i >= firstDayIndex && (h + 1) <= totalDays[jsMonth]) {
                                 allDays.push({
                                     day: ++h,
-                                    date: new Date(jsYear, jsMonth, h + 1)
+                                    date: new Date(jsYear, jsMonth, h + 1),
+                                    selected: new Date(jsYear, jsMonth, h + 1).setHours(0) == new Date(scope.dateValue).setHours(0, 0, 0, 0) ? true : false
                                 });
                             } else {
                                 allDays.push({}); // And empty object is pushed when the day is from another month
@@ -104,7 +102,7 @@ datePicker.directive('datePicker', function($parse) {
                         };
                         scope.weeks = calendar;
                         scope.currentYear = jsYear;
-                        scope.currentMonth = scope.dateValue.toDateString().split(' ')[1];
+                        scope.currentMonth = date.toDateString().split(' ')[1];
                     }
                 }
                 scope.$watch('dateValue', function(val) {
