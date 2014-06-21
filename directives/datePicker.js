@@ -68,13 +68,8 @@ datePicker.directive('datePicker', function($parse) {
                         jsDay = jsDay - 1;
                     }
                     scope.currentDate = jsDay + '/' + Math.abs(jsMonth + 1) + '/' + jsYear;
-                    var firstDayOfMonth = new Date(jsYear, jsMonth, 1).toDateString().split(' ');
-                    var firstDayIndex;
-                    for (var i in scope.days) {
-                        if (scope.days[i] == firstDayOfMonth[0]) {
-                            firstDayIndex = i;
-                        }
-                    }
+                    var firstDayOfMonth = new Date(jsYear, jsMonth, 1).toDateString().split(' ')[0];
+                    var firstDayIndex = scope.days.indexOf(firstDayOfMonth);
                     var allDays = [];
                     var h = 0;
                     for (i = 0; i < totalDays[jsMonth] + 6; i++) { // How many times it has to iterate to generate the five weeks componing the calendar
