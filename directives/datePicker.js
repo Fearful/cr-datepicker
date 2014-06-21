@@ -33,14 +33,12 @@ datePicker.directive('datePicker', function($parse) {
         templateUrl: "datePicker.tmpl",
         transclude: true,
         controller: function($scope) {
-            $scope.currentDate = new Date(2000, 0, 2);
             $scope.prev = function() {
                 $scope.dateValue = new Date($scope.dateValue).setMonth(new Date($scope.dateValue).getMonth() - 1);
             };
             $scope.next = function() {
                 $scope.dateValue = new Date($scope.dateValue).setMonth(new Date($scope.dateValue).getMonth() + 1);
             };
-            $scope.selecting = false;
             $scope.selectDate = function() {
                 $scope.selecting = !$scope.selecting;
             };
@@ -48,8 +46,6 @@ datePicker.directive('datePicker', function($parse) {
                 $scope.dateValue = day.date;
                 $scope.selecting = !$scope.selecting;
             };
-            $scope.currentMonth = '';
-            $scope.currentYear = '';
             $scope.days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
             $scope.weeks = [];
         },
