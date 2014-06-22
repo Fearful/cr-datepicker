@@ -2,3 +2,4 @@
 .datePicker table {width: 100%;}
 .datePicker  td { text-align: center;}
 .datePicker .week .active {background: #B8E5E9;}
+.datePicker .otherMonth {opacity: 0.4}

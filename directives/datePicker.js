@@ -20,7 +20,7 @@ var datePickerTemplate = [ // Template for the date picker, no CSS, pure HTML. T
     '<td  ng-repeat="day in days" ng-bind="day"></td>',
     '</tr></thead>',
     '<tbody><tr ng-repeat="week in weeks" class="week">',
-    '<td  ng-repeat="d in week.days" ng-bind="d.day" ng-click="selectDay(d)" ng-class="{active:d.selected}"></td>',
+    '<td  ng-repeat="d in week" ng-click="selectDay(d)" ng-class="{active: d.selected, otherMonth: d.notCurrentMonth}">{{ d.day | date: &#39;d&#39;}}</td>',
     '</tr></tbody>',
     '</table>',
     '</div>',
@@ -51,7 +51,7 @@ datePicker.directive('datePicker', function($parse) {
                 $scope.selecting = !$scope.selecting;
             };
             $scope.selectDay = function(day) {
-                $scope.dateValue = day.date;
+                $scope.dateValue = day.day;
                 $scope.selecting = !$scope.selecting;
             };
             $scope.days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -65,41 +65,33 @@ datePicker.directive('datePicker', function($parse) {
             return function(scope, element, attrs, controller) {
                 var calculateCalendar = function() {
                     var date = new Date(scope.dateValue);
-                    jsDay = date.getDate(),
-                    jsMonth = date.getMonth(),
-                    jsYear = date.getFullYear(),
-                    totalDays = [31, (jsYear % 4 == 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; // Calculating the quantity of days in february by it's year
-                    if (jsDay == 1) {
-                        jsMonth = jsMonth - 1;
-                        jsDay = totalDays[jsMonth];
-                    } else {
-                        jsDay = jsDay - 1;
-                    }
-                    scope.currentDate = jsDay + '/' + Math.abs(jsMonth + 1) + '/' + jsYear;
-                    var firstDayOfMonth = new Date(jsYear, jsMonth, 1).toDateString().split(' ')[0];
-                    var firstDayIndex = scope.days.indexOf(firstDayOfMonth);
-                    var allDays = [];
-                    var h = 0;
-                    for (i = 0; i < totalDays[jsMonth] + 6; i++) { // How many times it has to iterate to generate the five weeks componing the calendar
-                        if (i >= firstDayIndex && (h + 1) <= totalDays[jsMonth]) {
-                            allDays.push({
-                                day: ++h,
-                                date: new Date(jsYear, jsMonth, h + 1),
-                                selected: new Date(jsYear, jsMonth, h + 1).setHours(0) == new Date(scope.dateValue).setHours(0, 0, 0, 0) ? true : false
-                            });
-                        } else {
-                            allDays.push({}); // And empty object is pushed when the day is from another month
+                    scope.currentDate = date.getDate() + '/' + Math.abs(date.getMonth() + 1) + '/' + date.getFullYear(); //Value that will be binded to the input
+                      var startMonth = date.getMonth(), startYear = date.getYear();
+                      date.setDate(1);
+                        if (date.getDay() === 0) {
+                            date.setDate(-6);
+                          } else {
+                            date.setDate(date.getDate() - date.getDay());
+                          }
+                          if (date.getDate() === 1) {
+                            date.setDate(-6);
+                          }
+                      var weeks = [];
+                      while (weeks.length < 6) { // creates weeks and each day
+                        if(date.getYear()=== startYear && date.getMonth() > startMonth) break;
+                        var week = [];
+                        for (var i = 0; i < 7; i++) {
+                          week.push({
+                            day: new Date(date),
+                            selected: new Date(date).setHours(0) == new Date(scope.dateValue).setHours(0) ? true : false,
+                            notCurrentMonth: new Date(date).getMonth() != new Date(scope.dateValue).getMonth() ? true : false
+                          });
+                          date.setDate(date.getDate() + 1);
                         }
-                    }
-                    var calendar = []; // weeks container
-                    var chunk = 7; // Size of the chunk (days of the week)
-                    for (i = 0, allDays.length; i < allDays.length; i += chunk) { // We populate the calendar array with week objects that contain the chunk of days we wanted
-                        calendar.push({
-                            days: allDays.slice(i, i + chunk) // It slices the chunk of days based on the current index
-                        });
-                    };
-                    scope.weeks = calendar;
-                    scope.displayDate = date.toDateString().split(' ')[1] + ' ' +jsYear;
+                        weeks.push(week);
+                      }
+                    scope.weeks = weeks; // Week Array
+                    scope.displayDate = new Date(date.getFullYear(), date.getMonth() -1, date.getDate()).toDateString().split(' ')[1] + ' ' +date.getFullYear(); // Current Month / Year
                 }
                 scope.$watch('dateValue', function(val) {
                     calculateCalendar();
