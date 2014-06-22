@@ -8,25 +8,24 @@ var datePickerTemplate = [ // Template for the date picker, no CSS, pure HTML. T
     '<input type="text" ng-model="currentDate" disabled>',
     '</label>',
     '<div ng-show="selecting">',
-    '<div>',
-    '<a><span ng-click="prev()">Prev</span></a>',
-    '<a><span ng-click="next()">Next</span></a>',
-    '<div>',
-    '<span ng-bind="currentMonth">January</span>',
-    '<span ng-bind="currentYear"></span>',
-    '</div>',
-    '</div>',
     '<table>',
     '<thead><tr>',
-    '<th ng-repeat="day in days"><span ng-bind="day"></span></th>',
+    '<td colspan="7" ng-bind="currentMonth +  currentYear"></td>',
+    '</tr><tr>',
+    '<td ng-click="prevYear()">&lt;&lt;</td>',
+    '<td ng-click="prev()">&lt;</td>',
+    '<td colspan="3" ng-click="today()">Today</td>',
+    '<td ng-click="next()">&gt;</td>',
+    '<td ng-click="nextYear()">&gt;&gt;</td></tr><tr>',
+    '<td  ng-repeat="day in days" ng-bind="day"></td>',
     '</tr></thead>',
     '<tbody><tr ng-repeat="week in weeks">',
-    '<td ng-repeat="d in week.days"><a ng-bind="d.day" ng-click="selectDay(d)" ng-class="{active:d.selected}">1</a></td>',
+    '<td  ng-repeat="d in week.days" ng-bind="d.day" ng-click="selectDay(d)" ng-class="{active:d.selected}"></td>',
     '</tr></tbody>',
     '</table>',
     '</div>',
     '</div>'
-    ].join('\n');
+].join('\n');
 datePicker.directive('datePicker', function($parse) {
     return {
         restrict: "E",
@@ -36,8 +35,17 @@ datePicker.directive('datePicker', function($parse) {
             $scope.prev = function() {
                 $scope.dateValue = new Date($scope.dateValue).setMonth(new Date($scope.dateValue).getMonth() - 1);
             };
+            $scope.prevYear = function() {
+                $scope.dateValue = new Date($scope.dateValue).setYear(new Date($scope.dateValue).getFullYear() - 1);
+            };
             $scope.next = function() {
                 $scope.dateValue = new Date($scope.dateValue).setMonth(new Date($scope.dateValue).getMonth() + 1);
+            };
+            $scope.nextYear = function() {
+                $scope.dateValue = new Date($scope.dateValue).setYear(new Date($scope.dateValue).getFullYear() + 1);
+            };
+            $scope.today = function() {
+                $scope.dateValue = new Date();
             };
             $scope.selectDate = function() {
                 $scope.selecting = !$scope.selecting;
@@ -46,7 +54,7 @@ datePicker.directive('datePicker', function($parse) {
                 $scope.dateValue = day.date;
                 $scope.selecting = !$scope.selecting;
             };
-            $scope.days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+            $scope.days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
             $scope.weeks = [];
         },
         scope: {
@@ -57,10 +65,10 @@ datePicker.directive('datePicker', function($parse) {
             return function(scope, element, attrs, controller) {
                 var calculateCalendar = function() {
                     var date = new Date(scope.dateValue);
-                        jsDay = date.getDate(),
-                        jsMonth = date.getMonth(),
-                        jsYear = date.getFullYear(),
-                        totalDays = [31, (jsYear % 4 == 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; // Calculating the quantity of days in february by it's year
+                    jsDay = date.getDate(),
+                    jsMonth = date.getMonth(),
+                    jsYear = date.getFullYear(),
+                    totalDays = [31, (jsYear % 4 == 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; // Calculating the quantity of days in february by it's year
                     if (jsDay == 1) {
                         jsMonth = jsMonth - 1;
                         jsDay = totalDays[jsMonth];
@@ -104,7 +112,7 @@ datePicker.directive('datePicker', function($parse) {
 });
 datePicker.run([
     '$templateCache',
-    function ($templateCache) {
-      $templateCache.put('datePicker.tmpl', datePickerTemplate); // This saves the html template we declared before in the $templateCache
+    function($templateCache) {
+        $templateCache.put('datePicker.tmpl', datePickerTemplate); // This saves the html template we declared before in the $templateCache
     }
-  ]);
+]);
