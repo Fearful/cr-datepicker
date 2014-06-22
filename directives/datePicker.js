@@ -10,8 +10,8 @@ var datePickerTemplate = [ // Template for the date picker, no CSS, pure HTML. T
     '<div ng-show="selecting">',
     '<table>',
     '<thead><tr>',
-    '<td colspan="7" ng-bind="currentMonth +  currentYear"></td>',
-    '</tr><tr>',
+    '<td class="currentDate" colspan="7" ng-bind="displayDate"></td>',
+    '</tr><tr class="navigation">',
     '<td ng-click="prevYear()">&lt;&lt;</td>',
     '<td ng-click="prev()">&lt;</td>',
     '<td colspan="3" ng-click="today()">Today</td>',
@@ -19,7 +19,7 @@ var datePickerTemplate = [ // Template for the date picker, no CSS, pure HTML. T
     '<td ng-click="nextYear()">&gt;&gt;</td></tr><tr>',
     '<td  ng-repeat="day in days" ng-bind="day"></td>',
     '</tr></thead>',
-    '<tbody><tr ng-repeat="week in weeks">',
+    '<tbody><tr ng-repeat="week in weeks" class="week">',
     '<td  ng-repeat="d in week.days" ng-bind="d.day" ng-click="selectDay(d)" ng-class="{active:d.selected}"></td>',
     '</tr></tbody>',
     '</table>',
@@ -99,8 +99,7 @@ datePicker.directive('datePicker', function($parse) {
                         });
                     };
                     scope.weeks = calendar;
-                    scope.currentYear = jsYear;
-                    scope.currentMonth = date.toDateString().split(' ')[1];
+                    scope.displayDate = date.toDateString().split(' ')[1] + ' ' +jsYear;
                 }
                 scope.$watch('dateValue', function(val) {
                     calculateCalendar();
