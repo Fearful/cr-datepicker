@@ -7,7 +7,7 @@ Still in progress~ (I've still to define what should the behaviour be in some sp
 
 Usage: You simply pass a date value (this is the scope object that you will use) and done!
 ```html
-<date-picker type="text" date-Value="newDate" />
+<cr-datepicker type="text" date-Value="newDate" /></cr-datepicker>
 ```
 Or:
 ```html
