@@ -26,9 +26,9 @@ var datePickerTemplate = [ // Template for the date picker, no CSS, pure HTML. T
     '</div>',
     '</div>'
 ].join('\n');
-datePicker.directive('datePicker', function($parse) {
+datePicker.directive('crDatepicker', function($parse) {
     return {
-        restrict: "E",
+        restrict: "AE",
         templateUrl: "datePicker.tmpl",
         transclude: true,
         controller: function($scope) {
