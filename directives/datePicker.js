@@ -60,44 +60,43 @@ datePicker.directive('crDatepicker', function($parse) {
         scope: {
             dateValue: '='
         },
-        compile: function(element, attrs) {
+        link: function(scope, element, attrs) {
             var modelAccessor = $parse(attrs.dateValue);
-            return function(scope, element, attrs, controller) {
-                var calculateCalendar = function() {
-                    var date = new Date(scope.dateValue);
-                    scope.currentDate = date.getDate() + '/' + Math.abs(date.getMonth() + 1) + '/' + date.getFullYear(); //Value that will be binded to the input
-                      var startMonth = date.getMonth(), startYear = date.getYear();
-                      date.setDate(1);
-                        if (date.getDay() === 0) {
-                            date.setDate(-6);
-                          } else {
-                            date.setDate(date.getDate() - date.getDay());
-                          }
-                          if (date.getDate() === 1) {
-                            date.setDate(-6);
-                          }
-                      var weeks = [];
-                      while (weeks.length < 6) { // creates weeks and each day
-                        if(date.getYear()=== startYear && date.getMonth() > startMonth) break;
-                        var week = [];
-                        for (var i = 0; i < 7; i++) {
-                          week.push({
+            if(!scope.dateValue){ scope.dateValue = new Date() };
+            var calculateCalendar = function(date) {
+                var date = new Date(date || new Date());
+                scope.currentDate = date.getDate() + '/' + Math.abs(date.getMonth() + 1) + '/' + date.getFullYear(); //Value that will be binded to the input
+                var startMonth = date.getMonth(),
+                    startYear = date.getYear();
+                date.setDate(1);
+                if (date.getDay() === 0) {
+                    date.setDate(-6);
+                } else {
+                    date.setDate(date.getDate() - date.getDay());
+                }
+                if (date.getDate() === 1) {
+                    date.setDate(-6);
+                }
+                var weeks = [];
+                while (weeks.length < 6) { // creates weeks and each day
+                    if (date.getYear() === startYear && date.getMonth() > startMonth) break;
+                    var week = [];
+                    for (var i = 0; i < 7; i++) {
+                        week.push({
                             day: new Date(date),
                             selected: new Date(date).setHours(0) == new Date(scope.dateValue).setHours(0) ? true : false,
                             notCurrentMonth: new Date(date).getMonth() != new Date(scope.dateValue).getMonth() ? true : false
-                          });
-                          date.setDate(date.getDate() + 1);
-                        }
-                        weeks.push(week);
-                      }
-                    scope.weeks = weeks; // Week Array
-                    scope.displayDate = new Date(date.getFullYear(), date.getMonth() -1, date.getDate()).toDateString().split(' ')[1] + ' ' +date.getFullYear(); // Current Month / Year
+                        });
+                        date.setDate(date.getDate() + 1);
+                    }
+                    weeks.push(week);
                 }
-                scope.$watch('dateValue', function(val) {
-                    calculateCalendar();
-                });
-            };
-
+                scope.weeks = weeks; // Week Array
+                scope.displayDate = new Date(date.getFullYear(), date.getMonth() - 1, date.getDate()).toDateString().split(' ')[1] + ' ' + date.getFullYear(); // Current Month / Year
+            }
+            scope.$watch('dateValue', function(val) {
+                calculateCalendar(scope.dateValue);
+            });
         }
     };
 });

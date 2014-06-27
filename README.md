@@ -14,8 +14,6 @@ Or:
 
 Pure Js, only dependable (it's a directive) of angularJS.
 
-This directive was build on top of certain knowledge, we use the compile function instead of the link function because we are not dealing with live-data when calculating the calendar, as we are in the compile cycle of the directive inside of angular's lifecycle, we can manipulate and create dom objects (weeks & days), with almost none performance cost. 
-
 We only watch for the change of the date to calculate the calendar again. This directive was meant to allow the user to select a date in a pop-up like calendar. The scope variable passed to the date-value attribute will change as the date is changed and selected.
 
 I remind you all again, this is a WIP. Although is functional
